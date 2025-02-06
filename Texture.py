@@ -20,3 +20,17 @@ class CheckerTexture(Texture):
             return self.odd.value(u, v, p)
         else:
             return self.even.value(u, v, p)
+
+class ImageTexture(Texture):
+    def __init__(self, pixels, nx, ny):
+        self.data = pixels
+        self.nx = nx
+        self.ny = ny
+    def value(self, u: float, v: float, p: np.ndarray) -> np.ndarray:
+        i: int = int(u*self.nx)
+        j: int = int(v*self.ny)
+        i = 0 if i < 0 else self.nx-1 if i > self.nx-1 else i
+        j = 0 if j < 0 else self.ny-1 if j > self.ny-1 else j
+
+        rgb: np.ndarray = self.data[j, i] / 255.0
+        return rgb

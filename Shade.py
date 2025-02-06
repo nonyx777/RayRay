@@ -3,6 +3,7 @@ from Hitable import Hit, no_hit
 from Ray import Ray
 import random
 
+#DEFAULT = 4, 3
 MAX_DEPTH = 4
 NUMBER_OF_SAMPLES = 3
 

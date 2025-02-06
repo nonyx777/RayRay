@@ -43,3 +43,10 @@ def from_srgb8(img_srgb8):
 
 def to_srgb8(img):
     return np.clip(np.round(255.0 * to_srgb(img)), 0, 255).astype(np.uint8)
+  
+def get_sphere_uv(p: np.ndarray):
+    phi: float = np.atan2(p[2], p[0])
+    theta: float = np.asin(p[1])
+    u = 1-(phi + np.pi) / (2*np.pi)
+    v = (theta + np.pi/2) / np.pi
+    return u, v

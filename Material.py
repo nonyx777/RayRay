@@ -20,7 +20,8 @@ class Lambertian(Material):
         target = hit.point + hit.normal + random_in_unit_sphere()
         scattered.origin = hit.point
         scattered.direction = target - hit.point
-        attenuation[:] = self.k_d.value(0, 0, hit.point)
+        u, v = get_sphere_uv((hit.point - np.array([0.7,0,0])) / np.linalg.norm((hit.point - np.array([0.7,0,0]))))
+        attenuation[:] = self.k_d.value(u, v, hit.point)
         return True
 
 class Metal(Material):
