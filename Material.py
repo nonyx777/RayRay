@@ -2,6 +2,7 @@ import numpy as np
 from Ray import Ray
 from Hitable import Hit
 from utils import *
+from Texture import *
 
 class Material:
     def __init__(self, k_d):
@@ -19,7 +20,7 @@ class Lambertian(Material):
         target = hit.point + hit.normal + random_in_unit_sphere()
         scattered.origin = hit.point
         scattered.direction = target - hit.point
-        attenuation[:] = self.k_d
+        attenuation[:] = self.k_d.value(0, 0, hit.point)
         return True
 
 class Metal(Material):
@@ -29,7 +30,7 @@ class Metal(Material):
       reflected: np.ndarray = reflect(ray_in.direction / np.linalg.norm(ray_in.direction), hit.normal)
       scattered.origin = hit.point
       scattered.direction = reflected
-      attenuation[:] = self.k_d
+      attenuation[:] = self.k_d.value(0, 0, hit.point)
       return np.dot(scattered.direction, hit.normal) > 0
 
 class Dielectric(Material):

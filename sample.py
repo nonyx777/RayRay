@@ -3,10 +3,16 @@ from Hitable import Scene, Sphere
 from Material import Lambertian, Metal, Dielectric
 from cli import render
 from Camera import Camera
+from Texture import *
 
-tan = Metal(np.array([0.6, 0.6, 0.2]))
-blue = Lambertian(np.array([0.2, 0.2, 0.5]))
-gray = Lambertian(np.array([0.2, 0.2, 0.2]))
+tan_texture = ConstantTexture(np.array([0.6, 0.6, 0.2]))
+blue_texture = ConstantTexture(np.array([0.2, 0.2, 0.5]))
+gray_texture = ConstantTexture(np.array([0.2, 0.2, 0.2]))
+checker_texture = CheckerTexture(ConstantTexture(np.array([0.2, 0.3, 0.1])), ConstantTexture(np.array([0.9, 0.9, 0.9])))
+
+tan = Metal(tan_texture)
+blue = Lambertian(blue_texture)
+gray = Lambertian(checker_texture)
 transparent = Dielectric(1.5)
 
 scene = Scene([

@@ -4,7 +4,7 @@ from Ray import Ray
 import random
 
 MAX_DEPTH = 4
-NUMBER_OF_SAMPLES = 1
+NUMBER_OF_SAMPLES = 3
 
 def shade(ray, hit, scene, depth = 0):
     hit = scene.intersect(ray)
