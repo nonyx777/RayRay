@@ -4,19 +4,20 @@ from Ray import Ray
 import random
 
 #DEFAULT = 4, 3
-MAX_DEPTH = 4
-NUMBER_OF_SAMPLES = 3
+MAX_DEPTH = 1
+NUMBER_OF_SAMPLES = 1
 
 def shade(ray, hit, scene, depth = 0):
     hit = scene.intersect(ray)
     if hit.t < no_hit.t:
         scattered = Ray(np.zeros((3,)), np.zeros((3,)))
         attenuation = np.ones((3,))
+        emit = hit.material.emit(0.0, 0.0, np.zeros((3,)))
         if depth < MAX_DEPTH and hit.material.scatter(ray, hit, attenuation, scattered):
-            return attenuation * shade(scattered, hit, scene, depth + 1)
+            return emit + attenuation * shade(scattered, hit, scene, depth + 1)
         else:
-            return np.zeros((3,))
-    return scene.bg_color
+            return emit
+    return np.array([0.0, 0.0, 0.0])
 
 def render_image(camera, scene, nx, ny):
     image = np.zeros((ny, nx, 3), np.float32)

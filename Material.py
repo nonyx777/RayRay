@@ -12,6 +12,8 @@ class Material:
         self.k_d = k_d
     def scatter(self, ray_in: Ray, hit: Hit, attenuation: np.ndarray, scattered: Ray):
         pass
+    def emit(self, u: float, v: float, p: np.ndarray) -> np.ndarray:
+      return np.zeros((3,))
 
 class Lambertian(Material):
     def __init__(self, k_d):
