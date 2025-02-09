@@ -141,9 +141,39 @@ class YZPlane(Hitable):
       return no_hit
     y: float = ray.origin[1] + t * ray.direction[1]
     z: float = ray.origin[2] + t * ray.direction[2]
-    if x <= self.y0 or x >= self.y1 or z <= self.z0 or z >= self.z1:
+    if y <= self.y0 or y >= self.y1 or z <= self.z0 or z >= self.z1:
       return no_hit
     
     normal: np.ndarray = np.array([1, 0, 0])
     point: np.ndarray = ray.origin + t * ray.direction
     return Hit(t, point, normal, self.material)
+
+class FlipPlane(Hitable):
+  def __init__(self, plane):
+    super().__init__(material = plane.material)
+    self.plane = plane
+  def intersect(self, ray, t0: float = 0, t1: float = np.inf):
+    hit = self.plane.intersect(ray)
+    if hit.t < no_hit.t:
+      hit.normal = -hit.normal
+    return hit
+
+class Box(Hitable):
+  def __init__(self, p0: np.ndarray, p1: np.ndarray, material):
+    super().__init__(material=material)
+    self.pmin = p0
+    self.pmax = p1
+    self.plane_list = [
+      XYPlane(p0[0], p1[0], p0[1], p1[1], p1[2], self.material),
+      FlipPlane(XYPlane(p0[0], p1[0], p0[1], p1[1], p0[2], self.material)),
+      XZPlane(p0[0], p1[0], p0[2], p1[2], p1[1], self.material),
+      FlipPlane(XZPlane(p0[0], p1[0], p0[2], p1[2], p0[1], self.material)),
+      YZPlane(p0[1], p1[1], p0[2], p1[2], p1[0], self.material),
+      FlipPlane(YZPlane(p0[1], p1[1], p0[2], p1[2], p1[0], self.material)),
+    ]
+  def intersect(self, ray, t0: float = 0, t1: float = np.inf):
+    for plane in self.plane_list:
+      hit = plane.intersect(ray)
+      if hit.t < no_hit.t:
+        return hit
+    return no_hit
