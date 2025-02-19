@@ -1,4 +1,5 @@
 import numpy as np
+from Ray import *
 
 class Hit:
     def __init__(self, t, point=None, normal=None, material=None):
@@ -169,11 +170,50 @@ class Box(Hitable):
       XZPlane(p0[0], p1[0], p0[2], p1[2], p1[1], self.material),
       FlipPlane(XZPlane(p0[0], p1[0], p0[2], p1[2], p0[1], self.material)),
       YZPlane(p0[1], p1[1], p0[2], p1[2], p1[0], self.material),
-      FlipPlane(YZPlane(p0[1], p1[1], p0[2], p1[2], p1[0], self.material)),
+      FlipPlane(YZPlane(p0[1], p1[1], p0[2], p1[2], p0[0], self.material)),
     ]
   def intersect(self, ray, t0: float = 0, t1: float = np.inf):
+    closest_hit = no_hit
     for plane in self.plane_list:
       hit = plane.intersect(ray)
-      if hit.t < no_hit.t:
-        return hit
-    return no_hit
+      if hit.t < closest_hit.t:
+        closest_hit = hit
+    return closest_hit
+
+class Translate(Hitable):
+  def __init__(self, p, displacement: np.ndarray):
+    self.ptr = p
+    self.offset = displacement
+  def intersect(self, ray, t0: float = 0, t1: float = np.inf):
+    moved_ray = Ray(ray.origin - self.offset, ray.direction)
+    hit = self.ptr.intersect(moved_ray, t0, t1)
+    if hit.t < no_hit.t:
+      hit.point += self.offset
+    return hit
+
+class RotateY(Hitable):
+  def __init__(self, p, angle):
+    self.ptr = p
+    self.radian = (np.pi / 180) * angle
+    self.sin_theta = np.sin(self.radian)
+    self.cos_theta = np.cos(self.radian)
+  def intersect(self, ray, t0: float = 0, t1: float = np.inf):
+    origin: np.ndarray = ray.origin
+    direction: np.ndarray = ray.direction
+    origin[0] = self.cos_theta * ray.origin[0] - self.sin_theta * ray.origin[2]
+    origin[2] = self.sin_theta * ray.origin[0] + self.cos_theta * ray.origin[2]
+    direction[0] = self.cos_theta * ray.direction[0] - self.sin_theta * ray.direction[2]
+    direction[2] = self.sin_theta * ray.direction[0] + self.cos_theta * ray.direction[2]
+    rotated_r = Ray(origin, direction)
+    hit = self.ptr.intersect(rotated_r, t0, t1)
+    if hit.t < no_hit.t:
+      p: np.ndarray = hit.point
+      normal: np.ndarray = hit.normal
+      p[0] = self.cos_theta * hit.point[0] + self.sin_theta * hit.point[2]
+      p[2] = -self.sin_theta * hit.point[0] + self.cos_theta * hit.point[2]
+      normal[0] = self.cos_theta * hit.normal[0] + self.sin_theta * hit.normal[2]
+      normal[2] = -self.sin_theta * hit.normal[0] + self.cos_theta * hit.normal[2]
+      hit.point = p
+      hit.normal = normal
+    
+    return hit
